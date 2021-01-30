@@ -4,9 +4,12 @@
 namespace App\Controller;
 
 
+use App\Entity\BlogPost;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Serializer;
 
 
 /**
@@ -15,26 +18,60 @@ use Symfony\Component\Routing\Annotation\Route;
 class BlogController extends AbstractController
 {
     /**
-     * @Route("/", name="blog_list")
+     * @Route("/{page}", name="blog_list", defaults={"page":5}, requirements={"page"="\d+"})
      */
-    public  function list()
+    public  function list($page = 1, Request $request)
     {
-        return new JsonResponse("helloo");
+        $limit = $request->get('limit', 10);
+        $repository = $this->getDoctrine()->getRepository(BlogPost::class);
+        $items = $repository->findAll();
+
+        return $this->json(
+            [
+                'page' => $page,
+                'limit' => $limit,
+                'data' => array_map(function (BlogPost $item) {
+                    return $this->generateUrl('blog_by_slug', ['slug' => $item->getSlug()]);
+                }, $items)
+            ]
+        );
+        return new JsonResponse("helloo list");
     }
 
     /**
-     * @Route("/{id}", name="blog_by_id")
+     * @Route("/post/{id}", name="blog_by_id", methods={"GET"})
      */
     public  function post($id)
     {
+        return $this->json(
+            $this->getDoctrine()->getRepository(BlogPost::class)->find($id)
+        );
+    }
+
+    /**
+     * @Route("/post/{slug}", name="blog_by_slug", methods={"GET"})
+     */
+    public  function postBySlog($slug)
+    {
+        return $this->json(
+            $this->getDoctrine()->getRepository(BlogPost::class)->findBy(['slug' => $slug])
+        );
 
     }
 
     /**
-     * @Route("/{slug}", name="blog_by_slug")
+     * @Route("/add", name="blog_add", methods={"POST"})
      */
-    public  function postBySlog($slug)
+    public  function add(Request $request)
     {
+        /** @var Serializer $serializer */
+        $serializer = $this->get('serializer');
+        $blogPost = $serializer->deserialize($request->getContent(), BlogPost::class, 'json');
 
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($blogPost);
+        $em->flush();
+        return $this->json($blogPost);
     }
+
 }

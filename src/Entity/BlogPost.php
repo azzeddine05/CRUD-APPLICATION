@@ -25,9 +25,14 @@ class BlogPost
     private $title;
 
     /**
+     * @ORM\Column(type="datetime")
+     */
+    private $published;
+
+    /**
      * @ORM\Column(type="string", length=255)
      */
-    private $datetime;
+    private $slug;
 
     /**
      * @ORM\Column(type="text")
@@ -35,7 +40,8 @@ class BlogPost
     private $content;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="posts")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $author;
 
@@ -56,18 +62,6 @@ class BlogPost
         return $this;
     }
 
-    public function getDatetime(): ?string
-    {
-        return $this->datetime;
-    }
-
-    public function setDatetime(string $datetime): self
-    {
-        $this->datetime = $datetime;
-
-        return $this;
-    }
-
     public function getContent(): ?string
     {
         return $this->content;
@@ -80,15 +74,40 @@ class BlogPost
         return $this;
     }
 
-    public function getAuthor(): ?string
+    public function getPublished(): ?\DateTimeInterface
+    {
+        return $this->published;
+    }
+
+    public function setPublished(\DateTimeInterface $published): self
+    {
+        $this->published = $published;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getAuthor(): ?User
     {
         return $this->author;
     }
 
-    public function setAuthor(string $author): self
+    public function setAuthor(?User $author): self
     {
         $this->author = $author;
 
         return $this;
     }
+
 }

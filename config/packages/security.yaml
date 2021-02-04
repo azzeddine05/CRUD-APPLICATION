@@ -6,7 +6,7 @@ security:
 #        users_in_memory: { memory: null }
         database:
             entity:
-                class: App\entity\User
+                class: App\Entity\User
                 property: username
     firewalls:
         dev:
@@ -17,26 +17,15 @@ security:
             stateless: true
             anonymous: true
             json_login:
-                # Here authentication will happen (token generation)
                 check_path: /api/login_check
-                # Handle successful authentication
                 success_handler: lexik_jwt_authentication.handler.authentication_success
-                # Handle authentication failure (invalid credentials etc)
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
             guard:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
-
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#firewalls-authentication
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/api/login, roles: IS_AUTHETICATED_ANONYMOUSLY }
-        - { path: ^/api, roles: IS_AUTHETICATED_FULLY }
+        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+
 

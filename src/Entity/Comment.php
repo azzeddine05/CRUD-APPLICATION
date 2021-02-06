@@ -5,12 +5,13 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ApiResource()
  * @ORM\Entity(repositoryClass=CommentRepository::class)
  */
-class Comment
+class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
 {
     /**
      * @ORM\Id
@@ -35,6 +36,12 @@ class Comment
      */
     private $author;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="BlogPost", inversedBy="comments")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $blogPost;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -57,7 +64,7 @@ class Comment
         return $this->published;
     }
 
-    public function setPublished(\DateTimeInterface $published): self
+    public function setPublished(\DateTimeInterface $published): PublishedDateEntityInterface
     {
         $this->published = $published;
 
@@ -69,9 +76,24 @@ class Comment
         return $this->author;
     }
 
-    public function setAuthor(?User $author): self
+    /**
+     * @param UserInterface $author
+     */
+    public function setAuthor(UserInterface $author): AuthoredEntityInterface
     {
         $this->author = $author;
+
+        return $this;
+    }
+
+    public function getBlogPost(): ?BlogPost
+    {
+        return $this->blogPost;
+    }
+
+    public function setBlogPost(?BlogPost $blogPost): self
+    {
+        $this->blogPost = $blogPost;
 
         return $this;
     }

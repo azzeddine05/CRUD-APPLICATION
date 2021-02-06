@@ -20,6 +20,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class User implements UserInterface
 {
+    const ROLE_COMMENTATOR = 'ROLE_COMENTATOR';
+    const ROLE_WRITER = 'ROLE_WRITER';
+    const ROLE_EDITOR = 'ROLE_EDITOR';
+    const ROLE_ADMIN = 'ROLE_ADMIN';
+    const ROLE_SUPERADMIN = 'ROLE_SUPERADMIN';
+
+    const DEFAULT_ROLES = [self::ROLE_COMMENTATOR];
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -58,6 +65,11 @@ class User implements UserInterface
      * @ORM\OneToMany(targetEntity="Comment", mappedBy="author")
      */
     private $comments;
+
+    /**
+     * @ORM\Column(type="simple_array", length=200)
+     */
+    private $roles;
 
     public function __construct()
     {
@@ -191,5 +203,12 @@ class User implements UserInterface
     public function eraseCredentials()
     {
 
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
     }
 }
